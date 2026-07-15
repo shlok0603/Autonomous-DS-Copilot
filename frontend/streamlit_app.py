@@ -51,7 +51,7 @@ if uploaded_file:
 
     # Data Quality Tab
     with quality_tab:
-        quality.render(profile)
+        quality.render(df, profile)
 
     # Visualization Tab
     with visualization_tab:
