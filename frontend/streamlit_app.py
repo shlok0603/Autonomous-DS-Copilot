@@ -55,7 +55,7 @@ if uploaded_file:
 
     # Visualization Tab
     with visualization_tab:
-        visualization.render()
+        visualization.render(df)
 
     # AI Insights Tab
     with insights_tab:
