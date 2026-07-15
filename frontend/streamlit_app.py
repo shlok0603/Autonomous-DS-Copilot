@@ -59,7 +59,7 @@ if uploaded_file:
 
     # AI Insights Tab
     with insights_tab:
-        insights.render()
+        insights.render(df)
 
     # Reports Tab
     with reports_tab:

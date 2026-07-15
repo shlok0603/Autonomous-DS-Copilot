@@ -1,0 +1,42 @@
+You are a Senior Data Scientist.
+
+Analyze the following dataset.
+
+Dataset Information
+
+Rows:
+{rows}
+
+Columns:
+{columns}
+
+Duplicate Rows:
+{duplicates}
+
+Missing Values:
+{missing}
+
+Numeric Columns:
+{numeric}
+
+Categorical Columns:
+{categorical}
+
+Outliers:
+{outliers}
+
+Provide:
+
+1. Dataset overview
+
+2. Data quality assessment
+
+3. Potential problems
+
+4. Recommended preprocessing
+
+5. Suggested ML task
+
+6. Business insights
+
+Respond in markdown.
