@@ -9,7 +9,14 @@ class InsightGenerator:
 
         report = DataQualityAnalyzer.analyze(df)
 
-        outliers = DataQualityAnalyzer.detect_outliers(df)
+        outlier_report = DataQualityAnalyzer.detect_outliers(df)
+
+        outliers = "\n".join(
+            [
+                f"{col}: {count}"
+                for col, count in outlier_report.items()
+            ]
+        )
 
         template = PromptLoader.load(
             "dataset_analysis.txt"
@@ -23,7 +30,12 @@ class InsightGenerator:
 
             duplicates=report["duplicates"],
 
-            missing=report["missing_percentage"].to_string(),
+            missing="\n".join(
+                [
+                    f"{col}: {round(val, 2)}%"
+                    for col, val in report["missing_percentage"].items()
+                ]
+            ),
 
             numeric=", ".join(report["numeric_columns"]),
 
