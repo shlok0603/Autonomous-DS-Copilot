@@ -3,32 +3,54 @@ import streamlit as st
 from reports.report_generator import ReportGenerator
 
 
-def render(profile):
+def render(df, profile):
 
     st.subheader("Reports")
 
-    if st.session_state.get("ai_report") is None:
-
-        st.info("Generate AI Insights first.")
-
+    # Check if AI insights have been generated
+    if "ai_report" not in st.session_state:
+        st.info("Please generate AI Insights first.")
         return
 
-    if st.button("Generate PDF Report"):
+    if st.session_state.ai_report is None:
+        st.info("Please generate AI Insights first.")
+        return
 
-        with st.spinner("Generating PDF..."):
+    # Generate Reports
+    if st.button("Generate Reports"):
 
-            pdf_path = ReportGenerator.generate(
+        with st.spinner("Generating HTML and PDF Reports..."):
+
+            html_path, pdf_path = ReportGenerator.generate(
+                df,
                 profile,
                 st.session_state.ai_report
             )
 
-        st.success("PDF Generated Successfully")
+        st.success("Reports Generated Successfully!")
 
-        with open(pdf_path, "rb") as file:
+        col1, col2 = st.columns(2)
 
-            st.download_button(
-                "Download PDF",
-                file,
-                "AI_Report.pdf",
-                mime="application/pdf"
-            )
+        # Download PDF
+        with col1:
+
+            with open(pdf_path, "rb") as pdf_file:
+
+                st.download_button(
+                    label="Download PDF",
+                    data=pdf_file,
+                    file_name="AI_Report.pdf",
+                    mime="application/pdf"
+                )
+
+        # Download HTML
+        with col2:
+
+            with open(html_path, "r", encoding="utf-8") as html_file:
+
+                st.download_button(
+                    label="Download HTML",
+                    data=html_file.read(),
+                    file_name="Analysis_Report.html",
+                    mime="text/html"
+                )

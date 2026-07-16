@@ -63,4 +63,4 @@ if uploaded_file:
 
     # Reports Tab
     with reports_tab:
-        reports.render(profile)
+        reports.render(df,profile)
