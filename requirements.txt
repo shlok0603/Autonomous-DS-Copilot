@@ -18,3 +18,4 @@ sentence-transformers
 scikit-learn
 reportlab
 python-multipart
+reportlab

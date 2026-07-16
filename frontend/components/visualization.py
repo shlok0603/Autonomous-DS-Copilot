@@ -5,7 +5,7 @@ from utils.charts import ChartGenerator
 
 def render(df):
 
-    st.subheader("📈 Automatic Visualizations")
+    st.subheader("Automatic Visualizations")
 
     numeric = ChartGenerator.get_numeric_columns(df)
 

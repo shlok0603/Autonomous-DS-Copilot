@@ -6,7 +6,7 @@ from services.ai_service import AIService
 
 def render(df):
 
-    st.subheader("🤖 AI Dataset Insights")
+    st.subheader("AI Dataset Insights")
 
     # Store AI response
     if "ai_report" not in st.session_state:
@@ -33,7 +33,7 @@ def render(df):
             st.markdown(st.session_state.ai_report)
 
         st.download_button(
-            label="📥 Download AI Report",
+            label="Download AI Report",
             data=st.session_state.ai_report,
             file_name="AI_Report.md",
             mime="text/markdown"

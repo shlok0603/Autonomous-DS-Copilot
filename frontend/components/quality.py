@@ -11,7 +11,7 @@ def render(df, profile):
 
     score = DataQualityAnalyzer.quality_score(df)
 
-    st.subheader("📊 Data Quality Report")
+    st.subheader("Data Quality Report")
 
     st.metric("Quality Score", f"{score}/100")
 
