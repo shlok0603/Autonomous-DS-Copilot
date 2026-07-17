@@ -1,9 +1,16 @@
 import streamlit as st
 
+from frontend.ui.hero import render as hero
 from utils.quality_analyzer import DataQualityAnalyzer
 
 
 def render(df, profile):
+
+    hero(
+        title="Data Quality Dashboard",
+        subtitle="Analyze missing values, outliers and overall dataset quality.",
+        icon="📊"
+    )
 
     report = DataQualityAnalyzer.analyze(df)
 
@@ -11,45 +18,120 @@ def render(df, profile):
 
     score = DataQualityAnalyzer.quality_score(df)
 
-    st.subheader("Data Quality Report")
+    st.markdown("## 📈 Quality Overview")
 
-    st.metric("Quality Score", f"{score}/100")
+    c1, c2, c3, c4 = st.columns(4)
+
+    with c1:
+
+        st.metric(
+            "Quality Score",
+            f"{score}/100"
+        )
+
+    with c2:
+
+        st.metric(
+            "Rows",
+            profile["rows"]
+        )
+
+    with c3:
+
+        st.metric(
+            "Columns",
+            profile["columns"]
+        )
+
+    with c4:
+
+        st.metric(
+            "Duplicates",
+            report["duplicates"]
+        )
 
     st.divider()
 
-    st.write("### Missing Values (%)")
+    st.markdown("## 🚨 Missing Values")
 
     missing_df = (
+
         report["missing_percentage"]
+
         .reset_index()
+
     )
 
     missing_df.columns = [
+
         "Column",
+
         "Missing (%)"
+
     ]
 
-    st.dataframe(missing_df, width="stretch")
-
-    st.write("### Outliers")
-
     st.dataframe(
-        outliers.items(),
-        width="stretch"
+
+        missing_df,
+
+        use_container_width=True,
+
+        hide_index=True
+
     )
 
-    st.write("### Constant Columns")
+    st.divider()
 
-    st.write(report["constant_columns"])
+    st.markdown("## 📌 Outlier Analysis")
 
-    st.write("### Numeric Columns")
+    outlier_df = outliers.items()
 
-    st.write(report["numeric_columns"])
+    st.dataframe(
 
-    st.write("### Categorical Columns")
+        outlier_df,
 
-    st.write(report["categorical_columns"])
+        use_container_width=True,
 
-    st.write("### Duplicate Rows")
+        hide_index=True
 
-    st.write(report["duplicates"])
+    )
+
+    st.divider()
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+
+        st.markdown("### 🧾 Constant Columns")
+
+        st.write(report["constant_columns"])
+
+    with c2:
+
+        st.markdown("### 🔢 Numeric Columns")
+
+        st.write(report["numeric_columns"])
+
+    st.divider()
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+
+        st.markdown("### 🏷 Categorical Columns")
+
+        st.write(report["categorical_columns"])
+
+    with c2:
+
+        st.markdown("### 🔁 Duplicate Rows")
+
+        st.write(report["duplicates"])
+
+    st.divider()
+
+    st.progress(score / 100)
+
+    st.success(
+        f"Dataset Quality Score : {score}/100"
+    )

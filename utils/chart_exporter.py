@@ -6,18 +6,22 @@ class ChartExporter:
     @staticmethod
     def save(fig, filename):
 
-        output_folder = Path("reports/temp")
+        output_folder = (
+            Path(__file__).resolve().parent.parent
+            / "reports"
+            / "temp"
+        )
 
         output_folder.mkdir(
             parents=True,
             exist_ok=True
         )
 
-        path = output_folder / filename
+        image_path = output_folder / filename
 
         fig.write_image(
-            str(path),
+            str(image_path),
             scale=2
         )
 
-        return str(path)
+        return str(image_path)

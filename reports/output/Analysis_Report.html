@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>AI Report</title>
+
+<link rel="stylesheet" href="../assets/styles.css">
+
+</head>
+
+<body>
+
+<div class="header">
+
+<h1>🤖 Autonomous Data Science Co-Pilot</h1>
+
+<h3>Executive AI Report</h3>
+
+<p><strong>Generated:</strong> 16 July 2026 15:19</p>
+
+</div>
+
+<div class="kpi-container">
+
+<div class="kpi-card">
+<h2>31</h2>
+<p>Rows</p>
+</div>
+
+<div class="kpi-card">
+<h2>8</h2>
+<p>Columns</p>
+</div>
+
+<div class="kpi-card">
+<h2>1</h2>
+<p>Duplicates</p>
+</div>
+
+<div class="kpi-card">
+<h2>2.71 KB</h2>
+<p>Memory</p>
+</div>
+
+</div>
+
+<div class="section">
+
+<h2>Executive Summary</h2>
+
+<p>
+
+The uploaded dataset contains
+<strong>31</strong>
+records and
+<strong>8</strong>
+features.
+
+</p>
+
+</div>
+
+<div class="section">
+
+<h2>AI Insights</h2>
+
+<div class="ai-box">
+
+As a Senior Data Scientist, I've analyzed the provided dataset information. Below is my assessment and recommendations.
+
+## Dataset Analysis: Employee Data
+
+### 1. Dataset Overview
+
+This dataset comprises **31 rows** and **8 columns**, offering a snapshot of employee information. The columns include identifiers (`Employee_ID`, `Name`), demographic data (`Age`, `City`), professional details (`Department`, `Experience_Years`), and key performance/compensation metrics (`Salary`, `Performance_Score`). It's a relatively small dataset, likely representing a segment of an organization's workforce or a pilot data collection. The mix of numerical and categorical columns indicates potential for both quantitative and qualitative analysis related to human resources.
+
+### 2. Data Quality Assessment
+
+**Overall Quality:** The data quality presents significant challenges, primarily due to its small size and substantial missing values in critical columns.
+
+*   **Dataset Size**: With only 31 rows, this is a very small dataset. Any statistical inferences or machine learning models built on it will have limited generalizability and high variance.
+*   **Duplicate Rows**: One duplicate row exists. This can skew summary statistics and introduce bias if not handled.
+*   **Missing Values**: This is the most critical issue.
+    *   `Salary`: A staggering **41.94%** of values are missing (13 out of 31 rows). This makes `Salary` largely unreliable as a feature or a target variable for any robust analysis or modeling.
+    *   `Performance_Score`: **16.13%** of values are missing (5 out of 31 rows). While less severe than `Salary`, this is still a significant portion for a key performance metric.
+    *   `Age`: **6.45%** missing (2 out of 31 rows). Manageable.
+    *   `Department`, `City`: **3.23%** missing for each (1 out of 31 rows). Manageable.
+    *   `Employee_ID`, `Name`, `Experience_Years`: No missing values, which is excellent for primary identifiers and a key feature.
+*   **Outliers**: No outliers were detected in any numeric columns (`Employee_ID`, `Age`, `Salary`, `Experience_Years`, `Performance_Score`). This simplifies preprocessing as no specific outlier treatment is required. However, it's worth noting that with such small data, outlier detection can sometimes be less sensitive.
+*   **Column Types**: The column types (`Numeric`, `Categorical`) are appropriate for the data described. `Name` is listed as categorical, but its primary use would likely be as an identifier rather than a predictive feature due to its high cardinality (likely unique values).
+
+### 3. Potential Problems
+
+1.  **Limited Statistical Power and Generalizability**: The extremely small sample size (31 rows) severely limits the confidence in any conclusions drawn. Relationships observed might be coincidental rather than statistically significant, and models will struggle to generalize to unseen data.
+2.  **Unreliable `Salary` Data**: With nearly half of `Salary` values missing, using this column for analysis (e.g., predicting salary, analyzing salary trends) is highly problematic. Imputing such a large percentage could introduce significant bias and inaccuracies.
+3.  **Compromised `Performance_Score` Analysis**: Over 16% missing values in `Performance_Score` will impact any analysis or modeling aimed at understanding employee performance.
+4.  **Impact of Imputation on Small Dataset**: While imputation is necessary for missing values, imputing a substantial portion of data, especially in a small dataset, can artificially reduce variance and mislead subsequent analysis.
+5.  **Risk of Overfitting**: Any machine learning model trained on such a small, potentially imputed dataset is highly susceptible to overfitting, meaning it will perform well on the training data but poorly on new, unseen data.
+6.  **Cardinality of Categorical Features**: While not explicitly stated, `Department` and `City` could have high cardinality or inconsistent entries (e.g., "HR" vs "Human Resources"), which would require further cleaning. `Name` is almost certainly high cardinality (unique) and should not be used directly as a feature.
+
+### 4. Recommended Preprocessing
+
+1.  **Handle Duplicate Rows**:
+    *   **Action**: Remove the 1 duplicate row. This should be the very first step to ensure unique observations.
+    *   **Impact**: Dataset size will reduce to 30 rows.
+2.  **Handle Missing Values**:
+    *   **`Employee_ID`, `Name`, `Experience_Years`**: No action needed.
+    *   **`Age` (6.45% missing)**:
+        *   **Action**: Impute with the median (for robustness against potential skew) or mean. Given the small percentage, this is relatively safe.
+    *   **`Department`, `City` (3.23% missing each)**:
+        *   **Action**: Impute with the mode (most frequent category). Given the small percentage, this is reasonable.
+        *   **Further Check**: After imputation, inspect unique values for consistency (e.g., "NY" vs "New York").
+    *   **`Performance_Score` (16.13% missing)**:
+        *   **Action**: Impute with the median or mean. Consider more advanced methods like K-Nearest Neighbors (KNN) imputation if simple methods introduce too much bias, though KNN might struggle with very few neighbors in such a small dataset.
+    *   **`Salary` (41.94% missing)**: This requires careful consideration.
+        *   **Action (Conditional)**:
+            *   **If `Salary` is the *target variable* for an ML task**: Drop rows where `Salary` is missing from the *training* set. This will drastically reduce the available training data to about 17 rows, highlighting the severe limitation.
+            *   **If `Salary` is a *feature variable* for an ML task**:
+                *   **Option 1 (Risky but retains rows)**: Advanced imputation using regression models (e.g., predicting Salary based on Age, Experience_Years, Department, Performance_Score from the non-missing Salary rows). This requires careful validation.
+                *   **Option 2 (Less risky, but loses rows)**: Drop rows with missing `Salary` values. This would leave approximately 17 rows, making any subsequent analysis extremely unreliable.
+                *   **Recommendation**: Given the high percentage, it's best to acknowledge `Salary` as highly problematic for use as a feature. If it *must* be used, advanced imputation with strong justification and validation is required, or it should be excluded from analysis until more data is collected. For this exercise, I recommend proceeding with the understanding that using Salary will be highly constrained.
+3.  **Feature Engineering/Selection**:
+    *   **`Employee_ID`, `Name`**: These are identifiers. Drop them from the feature set for ML models or use them only for indexing purposes.
+    *   **Categorical Encoding**: Convert `Department` and `City` (after imputation) into numerical format using techniques like One-Hot Encoding (for models sensitive to feature scale like linear models, SVMs) or Label Encoding (for tree-based models where ordinality isn't falsely implied).
+4.  **Feature Scaling**:
+    *   **Action**: For numerical features (`Age`, `Experience_Years`, `Performance_Score`, and `Salary` if reliably imputed and used as a feature), apply standardization (e.g., `StandardScaler`) or normalization (e.g., `MinMaxScaler`), especially for models sensitive to feature scales (e.g., SVMs, K-Means, Neural Networks). No outliers simplify this.
+
+### 5. Suggested ML Task
+
+Given the dataset's nature (HR/employee data) and severe limitations (small size, high missing `Salary`), the most feasible (albeit still challenging) ML task is:
+
+**Employee Performance Factor Identification / Prediction (Regression or Classification)**
+
+*   **Objective**: To identify which employee attributes (`Age`, `Department`, `Experience_Years`, and potentially `Salary` if reliably imputed) are associated with or predictive of an `Performance_Score`.
+*   **Task Type**:
+    *   **Regression**: If `Performance_Score` is treated as a continuous numerical target.
+    *   **Classification**: If `Performance_Score` can be binned into categories (e.g., "Low", "Medium", "High" performance) to predict an employee's performance tier. This might be more robust given the small dataset as it simplifies the prediction problem.
+*   **Reasoning**: `Performance_Score` is a direct outcome metric, and understanding its drivers is a common business objective in HR analytics. While `Performance_Score` itself has missing values, it's less severe than `Salary`, making it a more viable target.
+*   **Challenges**: The small dataset will make any model's predictive power weak. Interpretation will be qualitative rather than a strong, robust prediction. `Salary` as a feature would need very careful handling due to its missingness.
+
+Alternatively, **Employee Segmentation/Clustering** (Unsupervised Learning) could be explored to find natural groupings among employees based on their attributes, but again, the small dataset size limits its robustness.
+
+### 6. Business Insights
+
+Despite the data challenges, potential business insights can be formulated, contingent on addressing the data quality issues and acknowledging the limitations of a small dataset:
+
+1.  **Identify Key Performance Drivers (Hypothesis Generation)**: Even with limited data, exploring correlations (after imputation) between `Age`, `Experience_Years`, `Department`, and `Performance_Score` can provide initial hypotheses about what factors might influence employee performance. For example, "Do experienced employees consistently score higher?" or "Are certain departments performing better on average?".
+2.  **Highlight Data Collection Gaps**: The most immediate and critical business insight is the dire need for improved data collection, especially for `Salary` and `Performance_Score`. Over 40% missing `Salary` data is a significant operational issue that prevents comprehensive compensation analysis. This points to a fundamental flaw in HR data management.
+3.  **Initial Glimpses into Compensation Fairness (with caveats)**: If `Salary` can be meaningfully imputed or if sufficient complete `Salary` records exist, one could begin to explore questions like: "Are employees with similar `Experience_Years` and `Performance_Score` receiving comparable `Salary` across departments?" This would be a preliminary step towards ensuring pay equity.
+4.  **Departmental Performance Benchmarking**: Comparing average `Performance_Score` across `Department`s (after imputation) could offer initial insights into departmental effectiveness, prompting further investigation into high- or low-performing teams.
+5.  **Employee Profile Analysis**: By combining `Age`, `Experience_Years`, and `City`, the business could start to build profiles of its workforce, which could feed into recruitment strategies or talent management programs.
+
+Ultimately, the primary business insight derived from this dataset is a **strong recommendation to invest in robust data collection and management practices** to ensure that critical HR metrics like `Salary` and `Performance_Score` are consistently captured. Without this, deeper, data-driven HR analytics will remain severely hampered.
+
+</div>
+
+</div>
+
+<div class="section">
+
+<h2>Visualizations</h2>
+
+
+
+<div class="chart">
+
+<h3></h3>
+
+<img src="">
+
+</div>
+
+
+
+<div class="chart">
+
+<h3></h3>
+
+<img src="">
+
+</div>
+
+
+
+<div class="chart">
+
+<h3></h3>
+
+<img src="">
+
+</div>
+
+
+
+<div class="chart">
+
+<h3></h3>
+
+<img src="">
+
+</div>
+
+
+
+<div class="chart">
+
+<h3></h3>
+
+<img src="">
+
+</div>
+
+
+
+<div class="chart">
+
+<h3></h3>
+
+<img src="">
+
+</div>
+
+
+
+<div class="chart">
+
+<h3></h3>
+
+<img src="">
+
+</div>
+
+
+
+<div class="chart">
+
+<h3></h3>
+
+<img src="">
+
+</div>
+
+
+
+<div class="chart">
+
+<h3></h3>
+
+<img src="">
+
+</div>
+
+
+
+<div class="chart">
+
+<h3></h3>
+
+<img src="">
+
+</div>
+
+
+
+<div class="chart">
+
+<h3></h3>
+
+<img src="">
+
+</div>
+
+
+
+<div class="chart">
+
+<h3></h3>
+
+<img src="">
+
+</div>
+
+
+
+</div>
+
+<div class="footer">
+
+Generated using
+<strong>Autonomous Data Science Co-Pilot</strong>
+
+</div>
+
+</body>
+
+</html>

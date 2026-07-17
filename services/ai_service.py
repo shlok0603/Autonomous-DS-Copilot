@@ -1,5 +1,5 @@
 import os
-
+from utils.domain_detector import DomainDetector
 from dotenv import load_dotenv
 from google import genai
 
