@@ -8,14 +8,41 @@ from utils.ml_recommender import MLRecommender
 
 
 def render(df):
+    st.markdown("""
+    <div style="
+    background:linear-gradient(135deg,#4338CA,#6D28D9,#7C3AED);
+    padding:38px;
+    border-radius:24px;
+    margin-bottom:30px;
+    box-shadow:0 20px 45px rgba(99,102,241,.30);
+    ">
 
-    st.markdown(
-        """
-# 🤖 AI Copilot
+    <div style="
+    display:inline-block;
+    padding:8px 16px;
+    background:rgba(255,255,255,.12);
+    border-radius:999px;
+    color:white;
+    font-size:13px;
+    margin-bottom:16px;
+    ">
 
-Generate enterprise-grade AI insights powered by **Google Gemini**.
-"""
-    )
+    ✨ Google Gemini
+
+    </div>
+
+    <h1 style="color:white;margin:0;">
+    🤖 AI Copilot
+    </h1>
+
+    <p style="color:#E9D5FF;font-size:18px;margin-top:12px;">
+
+    Generate enterprise-grade AI insights powered by Gemini.
+
+    </p>
+
+    </div>
+    """, unsafe_allow_html=True)
 
     # ----------------------------------------------------
     # Session State
@@ -58,6 +85,13 @@ Dataset Domain: {domain}
             st.session_state.ai_report = response
 
             st.success("✅ AI Analysis Completed Successfully")
+
+            c1, c2, c3, c4 = st.columns(4)
+
+            c1.metric("Domain", domain)
+            c2.metric("Problem", problem)
+            c3.metric("Target", target if target else "N/A")
+            c4.metric("Engine", "Gemini")
 
             # ------------------------------------------------
             # Dataset Information
@@ -109,7 +143,7 @@ Dataset Domain: {domain}
 
         with st.container(border=True):
 
-            st.subheader("🧠 AI Copilot Analysis")
+            st.markdown("## 🧠 Executive AI Report")
 
             sections = st.session_state.ai_report.split("\n\n")
 
@@ -123,28 +157,32 @@ Dataset Domain: {domain}
                 lower = section.lower()
 
                 if "executive" in lower:
-                    st.success(section)
+                    st.success("📌 Executive Summary")
+                    st.markdown(section)
 
                 elif (
                     "risk" in lower
                     or "issue" in lower
                     or "warning" in lower
                 ):
-                    st.warning(section)
+                    st.warning("⚠ Risks Detected")
+                    st.markdown(section)
 
                 elif (
                     "recommend" in lower
                     or "suggest" in lower
                 ):
-                    st.info(section)
+                    st.info("💡 Recommendations")
+                    st.markdown(section)
 
                 else:
-                    st.markdown(section)
+                    st.markdown("### 📊 Analysis")
+                    st.write(section)
 
                 st.divider()
 
         st.download_button(
-            label="📄 Download AI Report",
+            label="⬇ Download Enterprise AI Report",
             data=st.session_state.ai_report,
             file_name="AI_Report.md",
             mime="text/markdown",

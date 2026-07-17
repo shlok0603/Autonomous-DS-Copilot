@@ -2,17 +2,18 @@ import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+from sklearn.impute import SimpleImputer
 
 from sklearn.ensemble import (
     RandomForestClassifier,
-    RandomForestRegressor
+    RandomForestRegressor,
 )
 
 from sklearn.tree import DecisionTreeClassifier
 
 from sklearn.linear_model import (
     LogisticRegression,
-    LinearRegression
+    LinearRegression,
 )
 
 from utils.model_evaluator import ModelEvaluator
@@ -21,31 +22,85 @@ from utils.model_evaluator import ModelEvaluator
 class AutoML:
 
     @staticmethod
-    def prepare(df, target):
+    def prepare(df, target, classification=True):
 
         df = df.copy()
 
-        encoders = {}
-
-        for col in df.select_dtypes(include=["object", "category"]):
-
-            encoder = LabelEncoder()
-
-            df[col] = encoder.fit_transform(
-                df[col].astype(str)
-            )
-
-            encoders[col] = encoder
-
+        # -----------------------------
+        # Separate X and y
+        # -----------------------------
         X = df.drop(columns=[target])
-
         y = df[target]
 
+        # -----------------------------
+        # Numeric columns
+        # -----------------------------
+        numeric_cols = X.select_dtypes(include=["number"]).columns
+
+        if len(numeric_cols) > 0:
+            num_imputer = SimpleImputer(strategy="median")
+            X[numeric_cols] = num_imputer.fit_transform(
+                X[numeric_cols]
+            )
+
+        # -----------------------------
+        # Categorical columns
+        # -----------------------------
+        categorical_cols = X.select_dtypes(
+            include=["object", "category", "bool"]
+        ).columns
+
+        if len(categorical_cols) > 0:
+
+            cat_imputer = SimpleImputer(
+                strategy="most_frequent"
+            )
+
+            X[categorical_cols] = cat_imputer.fit_transform(
+                X[categorical_cols]
+            )
+
+            X = pd.get_dummies(
+                X,
+                columns=categorical_cols,
+                drop_first=True,
+            )
+
+        # -----------------------------
+        # Target preprocessing
+        # -----------------------------
+        if classification:
+
+            if y.dtype == "object" or str(y.dtype) == "category":
+
+                target_encoder = LabelEncoder()
+
+                y = target_encoder.fit_transform(
+                    y.astype(str)
+                )
+
+            elif y.isnull().sum() > 0:
+
+                y = y.fillna(
+                    y.mode()[0]
+                )
+
+        else:
+
+            if y.isnull().sum() > 0:
+
+                y = y.fillna(
+                    y.median()
+                )
+
+        # -----------------------------
+        # Train Test Split
+        # -----------------------------
         return train_test_split(
             X,
             y,
             test_size=0.2,
-            random_state=42
+            random_state=42,
         )
 
     @staticmethod
@@ -53,7 +108,8 @@ class AutoML:
 
         X_train, X_test, y_train, y_test = AutoML.prepare(
             df,
-            target
+            target,
+            classification=True,
         )
 
         models = {
@@ -65,7 +121,9 @@ class AutoML:
                 DecisionTreeClassifier(random_state=42),
 
             "Logistic Regression":
-                LogisticRegression(max_iter=1000)
+                LogisticRegression(
+                    max_iter=1000
+                ),
 
         }
 
@@ -76,15 +134,32 @@ class AutoML:
         evaluations = {}
 
         for name, model in models.items():
+            for name, model in models.items():
+                print("=" * 50)
+                print("Training:", name)
+                print(X_train.isna().sum())
+                print("=" * 50)
+                print("TOTAL NaN =", X_train.isna().sum().sum())
+                print("=" * 50)
 
-            model.fit(X_train, y_train)
+                model.fit(
+                    X_train,
+                    y_train,
+                )
+
+                trained_models[name] = model
+
+            model.fit(
+                X_train,
+                y_train,
+            )
 
             trained_models[name] = model
 
             result = ModelEvaluator.evaluate_classification(
                 model,
                 X_test,
-                y_test
+                y_test,
             )
 
             evaluations[name] = result
@@ -93,7 +168,7 @@ class AutoML:
 
         best_name = max(
             leaderboard,
-            key=leaderboard.get
+            key=leaderboard.get,
         )
 
         return {
@@ -110,7 +185,9 @@ class AutoML:
 
             "y_test": y_test,
 
-            "feature_names": list(X_train.columns)
+            "feature_names": list(
+                X_train.columns
+            ),
 
         }
 
@@ -119,16 +196,19 @@ class AutoML:
 
         X_train, X_test, y_train, y_test = AutoML.prepare(
             df,
-            target
+            target,
+            classification=False,
         )
 
         models = {
 
             "Random Forest":
-                RandomForestRegressor(random_state=42),
+                RandomForestRegressor(
+                    random_state=42
+                ),
 
             "Linear Regression":
-                LinearRegression()
+                LinearRegression(),
 
         }
 
@@ -140,14 +220,17 @@ class AutoML:
 
         for name, model in models.items():
 
-            model.fit(X_train, y_train)
+            model.fit(
+                X_train,
+                y_train,
+            )
 
             trained_models[name] = model
 
             result = ModelEvaluator.evaluate_regression(
                 model,
                 X_test,
-                y_test
+                y_test,
             )
 
             evaluations[name] = result
@@ -156,7 +239,7 @@ class AutoML:
 
         best_name = max(
             leaderboard,
-            key=leaderboard.get
+            key=leaderboard.get,
         )
 
         return {
@@ -173,6 +256,8 @@ class AutoML:
 
             "y_test": y_test,
 
-            "feature_names": list(X_train.columns)
+            "feature_names": list(
+                X_train.columns
+            ),
 
         }

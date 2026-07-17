@@ -1,4 +1,5 @@
 import streamlit as st
+
 from frontend.ui.hero import render as hero
 from reports.report_generator import ReportGenerator
 
@@ -7,7 +8,47 @@ def status_card(title, icon, status="Ready"):
 
     color = "#10B981" if status == "Ready" else "#F59E0B"
 
-    from frontend.ui.hero import render as hero
+    st.markdown(
+        f"""
+<div style="
+background:#1E293B;
+padding:20px;
+border-radius:18px;
+margin-bottom:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 10px 25px rgba(0,0,0,.20);
+">
+
+<div style="
+font-size:16px;
+font-weight:600;
+color:white;
+">
+
+{icon} {title}
+
+</div>
+
+<div style="
+background:{color};
+padding:8px 16px;
+border-radius:999px;
+color:white;
+font-size:13px;
+font-weight:600;
+">
+
+{status}
+
+</div>
+
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
 
 def render(df, profile):
@@ -18,31 +59,51 @@ def render(df, profile):
 
     hero(
         title="Enterprise Report Center",
-        subtitle="Generate professional AI-powered reports.",
+        subtitle="Generate professional AI-powered reports with one click.",
         icon="📄"
     )
 
     # ============================================================
-    # Check AI Report
+    # AI Report Check
     # ============================================================
 
-    if "ai_report" not in st.session_state or st.session_state.ai_report is None:
+    if (
+        "ai_report" not in st.session_state
+        or st.session_state.ai_report is None
+    ):
 
         st.warning(
-            "⚠️ Generate AI Insights before creating reports."
+            "⚠️ Please generate AI Insights before creating reports."
         )
 
         return
 
     # ============================================================
-    # Report Status
+    # Dashboard Metrics
+    # ============================================================
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        st.metric("Sections", "6")
+
+    with c2:
+        st.metric("Format", "PDF")
+
+    with c3:
+        st.metric("AI Engine", "Gemini")
+
+    st.divider()
+
+    # ============================================================
+    # Report Components
     # ============================================================
 
     st.markdown("## 📋 Report Components")
 
-    c1, c2 = st.columns(2)
+    left, right = st.columns(2)
 
-    with c1:
+    with left:
 
         status_card(
             "Executive Summary",
@@ -59,7 +120,7 @@ def render(df, profile):
             "📈"
         )
 
-    with c2:
+    with right:
 
         status_card(
             "ML Recommendation",
@@ -76,20 +137,22 @@ def render(df, profile):
             "📄"
         )
 
-    st.markdown("---")
+    st.divider()
 
     # ============================================================
-    # Report Generation
+    # Generate Report
     # ============================================================
 
-    st.markdown("## 🚀 Generate Report")
+    st.markdown("## 🚀 Enterprise Report Generator")
 
     if st.button(
-        "Generate Enterprise Report",
+        "📄 Generate Enterprise Report",
         use_container_width=True
     ):
 
-        with st.spinner("Generating Enterprise AI Report..."):
+        with st.spinner(
+            "🤖 Gemini is generating your enterprise report..."
+        ):
 
             pdf_path = ReportGenerator.generate(
                 df,
@@ -99,17 +162,21 @@ def render(df, profile):
 
         st.session_state.generated_pdf = pdf_path
 
+        st.balloons()
+
         st.success(
-            "✅ Enterprise Report Generated Successfully"
+            "🎉 Enterprise Report Generated Successfully!"
         )
 
     # ============================================================
-    # Downloads
+    # Download Center
     # ============================================================
 
     if "generated_pdf" in st.session_state:
 
-        st.markdown("## ⬇ Download Reports")
+        st.divider()
+
+        st.markdown("## 📥 Download Center")
 
         c1, c2 = st.columns(2)
 
@@ -121,29 +188,29 @@ def render(df, profile):
             ) as pdf:
 
                 st.download_button(
-                    "📄 Download PDF Report",
-                    pdf,
-                    "Enterprise_AI_Report.pdf",
-                    "application/pdf",
-                    use_container_width=True,
+                    label="📄 Download PDF Report",
+                    data=pdf,
+                    file_name="Enterprise_AI_Report.pdf",
+                    mime="application/pdf",
+                    use_container_width=True
                 )
 
         with c2:
 
             st.download_button(
-                "🤖 Download AI Insights",
-                st.session_state.ai_report,
-                "AI_Insights.md",
-                "text/markdown",
-                use_container_width=True,
+                label="🤖 Download AI Insights",
+                data=st.session_state.ai_report,
+                file_name="AI_Insights.md",
+                mime="text/markdown",
+                use_container_width=True
             )
 
     # ============================================================
     # Footer
     # ============================================================
 
-    st.markdown("---")
+    st.divider()
 
-    st.info(
-        "💡 Reports include dataset profiling, AI insights, visualizations, and machine learning recommendations."
+    st.success(
+        "✨ Your report includes dataset profiling, AI insights, visualizations, AutoML recommendations, and enterprise-ready documentation."
     )

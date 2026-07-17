@@ -35,21 +35,63 @@ def render(df):
     st.markdown(
         """
 <div style="
-background:linear-gradient(135deg,#4338CA,#7C3AED);
-padding:35px;
-border-radius:25px;
+background:linear-gradient(135deg,#4338CA,#6D28D9,#7C3AED);
+padding:38px;
+border-radius:24px;
 margin-bottom:30px;
+box-shadow:0 20px 45px rgba(99,102,241,.30);
 ">
 
-<h1 style="color:white;margin:0;">
-📊 Interactive Analytics Dashboard
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+">
+
+<div>
+
+<div style="
+display:inline-block;
+padding:8px 16px;
+background:rgba(255,255,255,.12);
+border-radius:999px;
+color:white;
+font-size:13px;
+margin-bottom:16px;
+">
+
+📊 Enterprise Analytics
+
+</div>
+
+<h1 style="margin:0;color:white;font-size:40px;">
+
+Interactive Analytics Dashboard
+
 </h1>
 
-<p style="color:#E5E7EB;font-size:18px;margin-top:10px;">
+<p style="
+margin-top:14px;
+font-size:18px;
+color:#E9D5FF;
+">
 
 Automatically generated visual insights from your dataset.
 
 </p>
+
+</div>
+
+<div style="
+font-size:70px;
+opacity:.18;
+">
+
+📊
+
+</div>
+
+</div>
 
 </div>
 """,
@@ -57,47 +99,64 @@ Automatically generated visual insights from your dataset.
     )
 
     numeric = ChartGenerator.get_numeric_columns(df)
-
     categorical = ChartGenerator.get_categorical_columns(df)
 
     # =====================================================
-    # NUMERIC VISUALIZATIONS
+    # DATASET SUMMARY
+    # =====================================================
+
+    st.markdown("## 📌 Dataset Summary")
+
+    c1, c2, c3 = st.columns(3)
+
+    c1.metric("Numeric Columns", len(numeric))
+    c2.metric("Categorical Columns", len(categorical))
+    c3.metric("Total Features", len(df.columns))
+
+    st.divider()
+
+    # =====================================================
+    # NUMERICAL
     # =====================================================
 
     st.markdown("## 📈 Numerical Analysis")
 
     for column in numeric:
 
-        c1, c2 = st.columns(2)
+        st.markdown(f"### 🔹 {column}")
 
-        with c1:
+        left, right = st.columns(2)
 
+        with left:
             chart_card(
-                f"Histogram • {column}",
+                "Histogram",
                 ChartGenerator.histogram(df, column),
             )
 
-        with c2:
-
+        with right:
             chart_card(
-                f"Box Plot • {column}",
+                "Box Plot",
                 ChartGenerator.boxplot(df, column),
             )
 
+        st.divider()
+
     # =====================================================
-    # HEATMAP
+    # CORRELATION
     # =====================================================
 
     heatmap = ChartGenerator.correlation_heatmap(df)
 
     if heatmap is not None:
 
-        st.markdown("## 🔥 Correlation Analysis")
+        st.markdown("## 🔥 Correlation Heatmap")
 
         chart_card(
-            "Correlation Heatmap",
+            "Feature Correlation",
             heatmap,
         )
+
+        st.divider()
 
     # =====================================================
     # CATEGORICAL
@@ -107,18 +166,22 @@ Automatically generated visual insights from your dataset.
 
     for column in categorical:
 
-        c1, c2 = st.columns(2)
+        st.markdown(f"### 🔹 {column}")
 
-        with c1:
+        left, right = st.columns(2)
+
+        with left:
 
             chart_card(
-                f"Bar Chart • {column}",
+                "Bar Chart",
                 ChartGenerator.bar_chart(df, column),
             )
 
-        with c2:
+        with right:
 
             chart_card(
-                f"Pie Chart • {column}",
+                "Pie Chart",
                 ChartGenerator.pie_chart(df, column),
             )
+
+        st.divider()

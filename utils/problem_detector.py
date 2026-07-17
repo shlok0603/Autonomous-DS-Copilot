@@ -3,89 +3,76 @@ import pandas as pd
 
 class ProblemDetector:
 
-    REGRESSION_KEYWORDS = [
-        "salary",
-        "price",
-        "revenue",
-        "sales",
-        "income",
-        "profit",
-        "score",
-        "amount",
-        "cost"
-    ]
-
     CLASSIFICATION_KEYWORDS = [
+        "survived",
         "target",
         "label",
         "class",
         "diagnosis",
-        "disease",
         "status",
-        "approved",
-        "survived",
         "churn",
         "default",
-        "performance",
-        "attrition"
+        "approved",
+        "attrition",
+        "species",
+        "type",
+        "outcome",
+        "result",
+        "y"
+    ]
+
+    REGRESSION_KEYWORDS = [
+        "price",
+        "salary",
+        "sales",
+        "revenue",
+        "income",
+        "profit",
+        "amount",
+        "score",
+        "cost"
     ]
 
     @staticmethod
-    def detect(df: pd.DataFrame):
+    def detect(df):
 
         columns = list(df.columns)
-        lower_columns = [c.lower() for c in columns]
 
-        # ---------------------------------
-        # STEP 1 : Keyword Detection
-        # ---------------------------------
+        # ------------------------
+        # Keyword detection
+        # ------------------------
 
-        for keyword in ProblemDetector.CLASSIFICATION_KEYWORDS:
+        for col in columns:
 
-            for original, lower in zip(columns, lower_columns):
+            lower = col.lower()
 
-                if keyword in lower:
+            for key in ProblemDetector.CLASSIFICATION_KEYWORDS:
 
-                    return "Classification", original
+                if key == lower or key in lower:
 
-        for keyword in ProblemDetector.REGRESSION_KEYWORDS:
+                    return "Classification", col
 
-            for original, lower in zip(columns, lower_columns):
+            for key in ProblemDetector.REGRESSION_KEYWORDS:
 
-                if keyword in lower:
+                if key == lower or key in lower:
 
-                    return "Regression", original
+                    return "Regression", col
 
-        # ---------------------------------
-        # STEP 2 : Intelligent Detection
-        # ---------------------------------
+        # ------------------------
+        # Last column heuristic
+        # ------------------------
 
-        for column in reversed(columns):
+        target = columns[-1]
 
-            series = df[column]
+        series = df[target]
 
-            unique = series.nunique(dropna=True)
+        unique = series.nunique(dropna=True)
 
-            if pd.api.types.is_numeric_dtype(series):
+        if pd.api.types.is_numeric_dtype(series):
 
-                # Small number of unique values
-                # e.g. 0/1/2 or 1-5 ratings
-                if unique <= 10:
+            if unique <= 20:
+                return "Classification", target
 
-                    return "Classification", column
+            return "Regression", target
 
-                # Continuous numeric values
-                return "Regression", column
-
-            else:
-
-                # Categorical target
-                if unique <= 20:
-
-                    return "Classification", column
-
-        # ---------------------------------
-        # STEP 3 : No obvious target
-        # ---------------------------------
-
-        return "Clustering", None
+        return "Classification", target
